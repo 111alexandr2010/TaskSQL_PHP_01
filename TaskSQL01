@@ -20,19 +20,19 @@ USE clinic;
  -- 2.Написать SQL-запрос, создающий две новые таблицы в нашей базе данных и заполняющий их тестовыми
  -- данными (по 10 записей в каждой).
 
-     CREATE TABLE listDoctorsClinic
+     CREATE TABLE doctors
 (
 	id INT(11) NOT NULL AUTO_INCREMENT,
 	surname VARCHAR(50) NOT NULL,
 	name VARCHAR(50) NOT NULL,
-	telefonNumber VARCHAR(20),
+	phoneNumber VARCHAR(20),
 	salary INT(11),
 	recruitmentDate DATE,
 	PRIMARY KEY(id)
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO listDoctorsClinic (surname, name, telefonNumber, salary, recruitmentDate) VALUES ('Скачко','Дмитрий','89133335671', 35000,'2015-04-20'),
+INSERT INTO doctors (surname, name, phoneNumber, salary, recruitmentDate) VALUES ('Скачко','Дмитрий','89133335671', 35000,'2015-04-20'),
    ('Трунов','Алексей','89032235689', 38000,'2015-06-12'),('Иванова','Екатерина','89134365601', 39000,'2016-02-10'),
    ('Быстров','Николай','89037357190', 25000,'2016-04-13'),   ('Веселов','Юрий','89055450856', 29000,'2016-11-20'),
    ('Долгова','Анна','89139857711', 35000,'2016-03-30'),('Вербова','Инна','89130369955', 42000,'2016-08-05'),
@@ -42,13 +42,13 @@ INSERT INTO listDoctorsClinic (surname, name, telefonNumber, salary, recruitment
 CREATE TABLE kindAnimals
 (
 	id INT(11) NOT NULL AUTO_INCREMENT,
-	nameInRussion VARCHAR(50),
+	nameInRussian VARCHAR(50),
 	nameInLatin VARCHAR(50),
 	PRIMARY KEY(id)
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO kindAnimals (nameInRussion,nameInLatin) VALUES ('Кошка','Koshka'),('Собака','Sobaka'),
+INSERT INTO kindAnimals (nameInRussian,nameInLatin) VALUES ('Кошка','Koshka'),('Собака','Sobaka'),
 ('Канарейка','Kanareyka'),('Попугай','Popugay'),('Хомяк','Khomyak'),('Крыса','Kriysa'),('Корова','Korova'),
 ('Коза','Koza'),('Лошадь','Loshad'),('Свинья','Svinya');
 
@@ -70,19 +70,19 @@ ADD COLUMN commentsForOwner VARCHAR(255) DEFAULT NULL;
 -- 4. Написать SQL-запрос, подсчитывающий суммарную зарплату всех врачей клиники за месяц.
 
 SELECT SUM(salary) salaryDoctorsSum
-FROM listDoctorsClinic;
+FROM doctors;
 
 -- 5. Написать SQL-запрос, заполняющий поле "Комментарий для владельца" в таблице со списком животных.
 -- Комментарий должен иметь значение вида "Ваш [имя] весит [N] кг" для животных мужского пола и "Ваша [имя]
 -- весит [N] кг" для животных женского пола.
 
 UPDATE animals SET commentsForOwner =
-CONCAT('Ваш',if(gender='f','а',''),' ',name,' весит ',round(weight/1000,2),' кг') ;
+CONCAT('Ваш', IF(gender = 'f', 'а', ''), ' ', name, ' весит ', ROUND(weight/1000,2), ' кг');
 
 -- 6. Написать SQL-запрос, автоматически добавляющий в таблицу со списком видов животных те виды животных,
 -- которые присутствуют в таблице 'animals'.
 
- INSERT INTO kindAnimals (nameInRussion)
+ INSERT INTO kindAnimals (nameInRussian)
  SELECT DISTINCT species
  FROM animals;
 
@@ -91,4 +91,7 @@ CONCAT('Ваш',if(gender='f','а',''),' ',name,' весит ',round(weight/1000
 --   на числовое значение идентификатора соответствующего вида животных.
 
 ALTER TABLE animals MODIFY species INT(11) DEFAULT 0;
-UPDATE animals SET species = speciesId;
+
+UPDATE animals a LEFT JOIN kindanimals
+                      ON a.species = nameInRussion
+SET a.species =  k.id;
