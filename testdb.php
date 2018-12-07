@@ -7,36 +7,33 @@ $password = '';
 try {
     $dbh = new PDO($dsn, $user, $password);
 
-    $weightMaximum = 'SELECT MAX(weight)
-                  FROM animals';
-
-    $rowCount = 'SELECT COUNT(weight)
-                  FROM animals 
-	              WHERE weight >= :minWeight AND weight <= :maxWeight';
-
-    $sql = 'SELECT name, weight, nameInRussian, nameInLatin
+    $sqlWithMax = 'SELECT name, weight, nameInRussian, nameInLatin
             FROM animals a
 	        LEFT JOIN kindAnimals k
 		      ON k.id = speciesId
             WHERE weight >= :minWeight AND weight <= :maxWeight';
 
-    $sth1 = $dbh->prepare($weightMaximum, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-    $sth1->execute(array());
-    $weightMax = $sth1->fetchColumn();
+    $sqlNoMax = 'SELECT name, weight, nameInRussian, nameInLatin
+            FROM animals a
+	        LEFT JOIN kindAnimals k
+		      ON k.id = speciesId
+            WHERE weight >= :minWeight';
+
+    $sthWithMax = $dbh->prepare($sqlWithMax, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+    $sthNoMax = $dbh->prepare($sqlNoMax, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
 
     $minWeight = isset($_GET['minWeight']) ? ($_GET['minWeight']) : 0;
-    $maxWeight = isset($_GET['maxWeight']) ? ($_GET['maxWeight']) : $weightMax ;
+    $maxWeight = isset($_GET['maxWeight']) ? ($_GET['maxWeight']) : 0;
 
-    $sth2 = $dbh->prepare($rowCount, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-    $sth2->execute(array(':minWeight' => $minWeight, ':maxWeight' => $weightMax));
+    if (isset($_GET['maxWeight']) && $_GET['maxWeight'] > 0) {
+        $sthWithMax->execute(array(':minWeight' => $minWeight, ':maxWeight' => $maxWeight));
+        $quarryArray = $sthWithMax->fetchAll();
+    } else {
+        $sthNoMax->execute(array(':minWeight' => $minWeight));
+        $quarryArray = $sthNoMax->fetchAll();
+    }
 
-    $sth3 = $dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-    $sth3->execute(array(':minWeight' => $minWeight, ':maxWeight' => $weightMax));
-
-    $rowsCount = $sth2->fetchColumn();
-    $quarryArray = $sth3->fetchAll();
-
-    create_table($rowsCount, $quarryArray);
+    create_table($quarryArray);
 
 } catch (PDOException $e) {
     echo 'Соединение не установлено! ' . $e->getMessage();
@@ -49,15 +46,12 @@ try {
     <p>Введите максимальный вес <input type="text" name="maxWeight"></p>
     <p><input type="submit" value="OK"></p>
 </form>
-</body>
-</html>
+
 
 <?php
-function create_table($rowsCount, $array)
+function create_table($array)
 {
     ?>
-    <html>
-    <body>
     <form method="get" action="/SQL_PHP/testdb.php">
         <table width="60%" border="1">
             <thead>
@@ -66,6 +60,7 @@ function create_table($rowsCount, $array)
                     background: yellow;
                     color: black;
                 }
+
                 TD {
                     background: whitesmoke;
                     color: grey;
@@ -79,7 +74,7 @@ function create_table($rowsCount, $array)
             </tr>
             </thead>
             <?php
-            for ($i = 0; $i < $rowsCount; $i++) {
+            for ($i = 0; $i < count($array); $i++) {
                 echo '<tr>';
                 for ($j = 0; $j < 4; $j++) {
                     ?>
@@ -94,4 +89,3 @@ function create_table($rowsCount, $array)
     </html>
     <?php
 } ?>
-
