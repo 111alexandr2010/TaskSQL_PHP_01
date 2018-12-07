@@ -1,8 +1,5 @@
 <?php
 
-/*$minWeight = isset($_GET['minWeight']) ? ($_GET['minWeight']) : 0;
-*/
-
 $dsn = 'mysql:dbname=clinic;host=127.0.0.1:3307';
 $user = 'root';
 $password = '';
@@ -61,7 +58,7 @@ function create_table($rowsCount, $array)
     ?>
     <html>
     <body>
-    <form method="get" action="testdb.php">
+    <form method="get" action="/SQL_PHP/testdb.php">
         <table width="60%" border="1">
             <thead>
             <style type="text/css">
@@ -69,7 +66,6 @@ function create_table($rowsCount, $array)
                     background: yellow;
                     color: black;
                 }
-
                 TD {
                     background: whitesmoke;
                     color: grey;
