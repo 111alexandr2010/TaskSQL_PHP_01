@@ -16,7 +16,7 @@ try {
     if (isset ($_GET['Delete'])) {
         $rowNumber = (int)$_GET['Delete'];
         rowDelete($dbh, $rowNumber);
-        header('Connection:/TaskSQL_PHP_01/TaskSQL_PHP_09.php');
+        header('Location:/TaskSQL_PHP_01/TaskSQL_PHP_09.php');
     }
 
     if (isset ($_GET['nameInRussian']) && isset ($_GET['nameInLatin'])) {
@@ -25,7 +25,7 @@ try {
 
         if (isset ($_GET['insert']) && $nameInRussian != null && $nameInLatin != null) {
             rowInsert($dbh, $nameInRussian, $nameInLatin);
-            header('Connection:/TaskSQL_PHP_01/TaskSQL_PHP_09.php');
+            header('Location:/TaskSQL_PHP_01/TaskSQL_PHP_09.php');
         }
     }
 
